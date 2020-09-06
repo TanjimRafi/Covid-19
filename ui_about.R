@@ -54,7 +54,7 @@ body_about <- dashboardBody(
                                 
                         )
                 )
-        ),
+        )
 )
 
 page_about <- dashboardPage(
