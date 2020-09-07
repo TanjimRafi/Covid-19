@@ -1,3 +1,5 @@
+library(shinydashboard)
+
 body_about <- dashboardBody(
         fluidRow(
                 box(
@@ -15,7 +17,7 @@ body_about <- dashboardBody(
                 ),
                 box(
                         title = h1("Disclaimer", style = "padding-left: 18px"),
-                        background = "teal",
+                        background = "purple",
                         column(
                                 width = 12,
                                 height = 15,
@@ -37,21 +39,24 @@ body_about <- dashboardBody(
                                 height = 15,
                                 h3("Please stay safe and respect social distancing, which can be tough on people and
                                    could disrupt the social and economic loop of life."),
-                                tags$br()
-                                
+                                br(),
+                                br(),
+                                br(),
+                                br()
                         )
                 ),
                 box(
-                        title = h1("Creator", style = "padding-left: 18px"),
+                        title = h1("References", style = "padding-left: 18px"),
                         background = "lime",
                         column(
                                 width = 12,
                                 height = 15,
-                                h3("Tanjim Rafi"),
+                                h4("Tanjim Rafi"),
                                 helpText(a(href = "https://www.facebook.com/rafi.tanjim/", target = "_blank", "Facebook")),
-                                br(),
-                                br()
-                                
+                                h4("Data Scource"),
+                                helpText(a(href = "https://www.github.com/CSSEGISandData/", target = "_blank", "JHONS HOPKINS WHITING SCHOOL of ENGINEERING")),
+                                h4("View Code!"),
+                                helpText(a(href = "https://github.com/TanjimRafi/Covid-19", target = "_blank", "GitHub"))
                         )
                 )
         )
