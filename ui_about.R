@@ -1,5 +1,3 @@
-library(shinydashboard)
-
 body_about <- dashboardBody(
         fluidRow(
                 box(
