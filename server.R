@@ -1,114 +1,110 @@
-source("main.R" , local = TRUE)
-
 function(input , output){
         
         ################
         # Overview tab #
         ################
-        
         sumData <- function(date) {
                 if (date >= min(data_evolution$date)) {
                         data <- UpToDate(date) %>% summarise(
                                 confirmed = sum(confirmed, na.rm = T),
                                 recovered = sum(recovered, na.rm = T),
                                 deceased  = sum(deceased, na.rm = T),
-                                countries = n_distinct(Country.Region)
+                                active = confirmed - (recovered + deceased)
                         )
                         return(data)
                 }
                 return(NULL)
         }
         
-        key_figures <- reactive({
-                data <- sumData(max(data_evolution$date))
-                data_yesterday <- sumData(max(data_evolution$date) - 1)
-                
-                data_new <- list(
-                        new_confirmed = (data$confirmed - data_yesterday$confirmed) / data_yesterday$confirmed * 100,
-                        new_recovered = (data$recovered - data_yesterday$recovered) / data_yesterday$recovered * 100,
-                        new_deceased  = (data$deceased - data_yesterday$deceased) / data_yesterday$deceased * 100,
-                        new_countries = data$countries - data_yesterday$countries
-                )
-                
-                keyFigures <- list(
-                        "confirmed" = HTML(paste(format(data$confirmed, big.mark = " "), sprintf("<h4>(%+.1f %%)</h4>", data_new$new_confirmed))),
-                        "recovered" = HTML(paste(format(data$recovered, big.mark = " "), sprintf("<h4>(%+.1f %%)</h4>", data_new$new_recovered))),
-                        "deceased"  = HTML(paste(format(data$deceased, big.mark = " "), sprintf("<h4>(%+.1f %%)</h4>", data_new$new_deceased))),
-                        "countries" = HTML(paste(format(data$countries, big.mark = " "), "/ 195", sprintf("<h4>(%+d)</h4>", data_new$new_countries)))
-                )
-                return(keyFigures)
+        output$valueBox_confirmed <- renderText({
+                s <- sumData(max(data_evolution$date)) 
+                confirmed <- s$confirmed
+                confirmed
         })
         
-        output$valueBox_confirmed <- renderValueBox({
-                valueBox(
-                        key_figures()$confirmed,
-                        subtitle = "Total Confirmed Cases",
-                        icon     = icon("procedures"),
-                        color    = "red",
-                        width    = NULL
-                )
+        output$valueBox_recovered <- renderText({
+                s <- sumData(max(data_evolution$date)) 
+                recovered <- s$recovered
+                recovered
         })
         
-        output$valueBox_recovered <- renderValueBox({
-                valueBox(
-                        key_figures()$recovered,
-                        subtitle = "Total Estimated Recoveries",
-                        icon     = icon("heartbeat"),
-                        color    = "green"
-                )
+        output$valueBox_deceased <- renderText({
+                s <- sumData(max(data_evolution$date)) 
+                deceased <- s$deceased
+                deceased
         })
         
-        output$valueBox_deceased <- renderValueBox({
-                valueBox(
-                        key_figures()$deceased,
-                        subtitle = "Total Deceased",
-                        icon     = icon("skull"),
-                        color    = "purple"
-                )
+        output$valueBox_active <- renderText({
+                s <- sumData(max(data_evolution$date)) 
+                active <- s$active
+                active
         })
         
-        output$valueBox_countries <- renderValueBox({
-                valueBox(
-                        key_figures()$countries,
-                        subtitle = "Total Affected Countries",
-                        icon     = icon("location-arrow"),
-                        color    = "yellow"
-                )
+        output$valueBox_confirmed_ban <- renderText({
+                d <- data_evolution %>% 
+                        filter(date == max(data_evolution$date) & Country.Region == "Bangladesh" & var == "confirmed") %>% 
+                        select(value)
+                confirmed_ban <- d$value
+                confirmed_ban
         })
         
-        output$valueBox_confirmed_ban <- renderValueBox({
-                valueBox(
-                        value    = data_evolution %>% filter(date == max(data_evolution$date) & Country.Region == "Bangladesh" & var == "confirmed") %>% select(value), 
-                        subtitle = "Total Confirmed Cases",
-                        icon     = icon("procedures"),
-                        color    = "red",
-                        width    = NULL
-                )
+        output$valueBox_recovered_ban <- renderText({
+                d <- data_evolution %>% 
+                        filter(date == max(data_evolution$date) & Country.Region == "Bangladesh" & var == "recovered") %>% 
+                        select(value)
+                recovered_ban <- d$value
+                recovered_ban
         })
         
-        output$valueBox_recovered_ban <- renderValueBox({
-                valueBox(
-                        value = data_evolution %>% filter(date == max(data_evolution$date) & Country.Region == "Bangladesh" & var == "recovered") %>% select(value),
-                        subtitle = "Total Estimated Recoveries",
-                        icon     = icon("heartbeat"),
-                        color    = "green"
-                )
+        output$valueBox_deceased_ban <- renderText({
+                d <- data_evolution %>% 
+                        filter(date == max(data_evolution$date) & Country.Region == "Bangladesh" & var == "deceased") %>% 
+                        select(value)
+                deceased_ban <- d$value
+                deceased_ban
         })
         
-        output$valueBox_deceased_ban <- renderValueBox({
-                valueBox(
-                        value = data_evolution %>% filter(date == max(data_evolution$date) & Country.Region == "Bangladesh" & var == "deceased") %>% select(value),
-                        subtitle = "Total Deceased",
-                        icon     = icon("skull"),
-                        color    = "purple"
-                )
+        output$valueBox_active_ban <- renderText({
+                d <- data_evolution %>% 
+                        filter(date == max(data_evolution$date) & Country.Region == "Bangladesh" & var == "active") %>% 
+                        select(value)
+                active_ban <- d$value
+                active_ban
         })
         
-        output$box_keyFigures <- renderUI(box(
-                title = paste0("Key Figures (", strftime(max(data_evolution$date), format = "%d.%m.%Y"), ")"),
-                div("Last updated: ", strftime(changed_date, format = "%d.%m.%Y - %R %Z")),
-                width = 12
-        ))
+        # Summary data
+        
+        summariseData <- function(df, groupBy) {
+                df %>%
+                        group_by(!!sym(groupBy)) %>%
+                        summarise(
+                                "Confirmed"            = sum(confirmed, na.rm = T),
+                                "Estimated Recoveries" = sum(recovered, na.rm = T),
+                                "Deceased"             = sum(deceased, na.rm = T),
+                                "Active"               = sum(active, na.rm = T)
+                        ) %>%
+                        as.data.frame()
+        }
+        
+        getSummaryDT <- function(data, groupBy, selectable = FALSE) {
+                datatable(
+                        na.omit(summariseData(data, groupBy)),
+                        rownames  = FALSE,
+                        options   = list(
+                                order          = list(1, "desc"),
+                                scrollX        = TRUE,
+                                scrollY        = "37vh",
+                                scrollCollapse = T,
+                                dom            = 'ft',
+                                paging         = FALSE
+                        ),
+                        selection = ifelse(selectable, "single", "none")
+                )
+        }
+        
+        output$summaryDT <- renderDataTable({
+                getSummaryDT(UpToDate(current_date), "Country.Region" , selectable = TRUE)
+        })
         
         ##################
         # Data table tab #

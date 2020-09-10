@@ -1,4 +1,4 @@
-source("ui_about.R", local = TRUE)
+source("main.R" , local = TRUE)
 
 fluidPage(
         title = "Covid-19 Analysis",
@@ -15,30 +15,56 @@ fluidPage(
                         icon = icon("eye"),
                         fluidRow(
                                 column(width = 12,
-                                       h3(" Worldwide Covid-19 situation -"),
-                                       valueBoxOutput(outputId = "valueBox_confirmed" , width = 6),
-                                       valueBoxOutput(outputId = "valueBox_recovered" , width = 6)
-                                ),
-                                
-                        ),
-                        fluidRow(
-                                column(width = 12,
-                                       valueBoxOutput(outputId = "valueBox_deceased"  , width = 6),
-                                       valueBoxOutput(outputId = "valueBox_countries" , width = 6)
+                                       h3("Covid-19 Situation (Worldwide)"),
+                                       valueBox(
+                                               value = "valueBox_confirmed" 
+                                               , subtitle = "Total Confirmed Cases"
+                                               , icon = "procedures"
+                                               , color = "red"),
+                                       valueBox(value = "valueBox_recovered" 
+                                                , subtitle = "Total Estimated Recoveries"
+                                                , icon = "heartbeat"
+                                                , color = "green"),
+                                       valueBox(value = "valueBox_deceased"  
+                                                , subtitle = "Total Deceased"
+                                                , icon = "skull"
+                                                , color = "purple"),
+                                       valueBox(value = "valueBox_active"  
+                                                , subtitle = "Active Cases"
+                                                , icon = "file-medical"
+                                                , color = "teal")
                                 )
                         ),
                         fluidRow(
                                 column(width = 12,
-                                       h3(" Bangladesh Covid-19 situation -"),
-                                       valueBoxOutput(outputId = "valueBox_confirmed_ban" , width = 4),
-                                       valueBoxOutput(outputId = "valueBox_recovered_ban" , width = 4),
-                                       valueBoxOutput(outputId = "valueBox_deceased_ban"  , width = 4),
-                                ),
+                                       h3("Covid-19 Situation (Bangladesh)"),
+                                       valueBox(value = "valueBox_confirmed_ban" 
+                                                , subtitle = "Total Confirmed Cases"
+                                                , icon = "procedures"
+                                                , color = "red"),
+                                       valueBox(value = "valueBox_recovered_ban" 
+                                                , subtitle = "Total Estimated Recoveries"
+                                                , icon = "heartbeat"
+                                                , color = "green"),
+                                       valueBox(value = "valueBox_deceased_ban"  
+                                                , subtitle = "Total Deceased"
+                                                , icon = "skull"
+                                                , color = "purple"),
+                                       valueBox(value = "valueBox_active_ban"  
+                                                , subtitle = "Active Cases"
+                                                , icon = "file-medical"
+                                                , color = "teal")
+                                )
                         ),
                         fluidRow(
-                                valueBoxOutput(
-                                        outputId = "box_keyFigures",
-                                        width = 12
+                                column(
+                                        width = 12,
+                                        h3("Summary Datatable"),
+                                        dataTableOutput(
+                                                outputId = "summaryDT"
+                                        ),
+                                        br(),
+                                        br()
                                 )
                         )
                 ),
@@ -49,10 +75,12 @@ fluidPage(
                         title = "Data Table",
                         icon = icon("database"),
                         fluidRow(
+                                h2("Complete Datatable"),
                                 dataTableOutput(
                                         outputId = "fullTable"
                                 )
-                        )
+                        ),
+                        br()
                 ),
                 
                 # Plot tab
@@ -61,7 +89,8 @@ fluidPage(
                         title = "Plots",
                         icon = icon("chart-bar"),
                         fluidRow(
-                                h3(" Worldwide evolution of cases since outbreak -"),
+                                h2(" Worldwide Evolution of Cases since Outbreak"),
+                                HTML("Advice: Please click on 'Compare data on hover' to get a better understanding!"),
                                 plotlyOutput(
                                         outputId = "case_evolution"
                                 ),
@@ -71,7 +100,7 @@ fluidPage(
                                 )
                         ),
                         fluidRow(
-                                h3("Cases on daily basis - "),
+                                h2("Cases on Daily Basis"),
                                 selectizeInput(
                                         inputId  = "selectize_casesByCountries_new",
                                         label    = "Select Country:",
@@ -82,19 +111,54 @@ fluidPage(
                                 HTML("Note: Active cases are calculated as <i>Confirmed - (Estimated Recoveries + Deceased)</i>. Therefore, 
           new active cases can be negative for some days, if on this day there were more new estimated recoveries + deceased cases than there 
           were new confirmed cases."),
+                                br(),
+                                HTML("Advice: Please click on 'Compare data on hover' to get a better understanding!"),
                                 plotlyOutput(
                                         outputId = "case_evolution_new"
-                                )
+                                ),
+                                br(),
+                                br()
                         )
                 ),
                 
-                # About tab
-                
+                # About Tab
                 tabPanel(
                         title = "About",
-                        page_about,
-                        value = "page_about",
-                        icon = icon("info-circle")
+                        icon = icon("info-circle"),
+                        fluidRow(
+                                column(
+                                        h2("About This Project"),
+                                        width = 12,
+                                        h4("This app demonstrates some recent news about the COVID-19 pandemic.
+                                            This app is a simulator, that reads from Jhons Hopkins University(JHU) dataset 
+                                            and shows some data related to mortality , recovery , infected etc...")
+                                ),
+                                column(
+                                        h2("Covid-19 Social Distancing"),
+                                        width = 12,
+                                        h4("Please stay safe and respect social distancing, which can be tough on people and
+                                           could disrupt the social and economic loop of life.")
+                                )
+                        ),
+                        fluidRow(
+                                column(
+                                        h2("Disclaimer"),
+                                        width = 12,
+                                        h4("This app is for educational purposes only. Opinions or points of view expressed 
+                                           in this app represent the view of creator only, that relies on public data from JHU. 
+                                           Nothing in this app constitutes legal advice.")
+                                ),
+                                column(
+                                        h2("Reference"),
+                                        width = 12,
+                                        h4("Data Scource"),
+                                        helpText(a(href = "https://www.github.com/CSSEGISandData/", target = "_blank", "JHONS HOPKINS WHITING SCHOOL of ENGINEERING")),
+                                        h4("Tanjim Rafi"),
+                                        helpText(a(href = "https://www.facebook.com/rafi.tanjim/", target = "_blank", "Facebook")),
+                                        h4("View Code"),
+                                        helpText(a(href = "https://github.com/TanjimRafi/Covid-19", target = "_blank", "GitHub"))
+                                )
+                        )
                 )
         )
 )

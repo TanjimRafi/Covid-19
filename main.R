@@ -1,18 +1,14 @@
 # ---- Loading libraries ----
 library("shiny")
-library("shinydashboard")
 library("tidyverse")
-library("leaflet")
 library("plotly")
 library("DT")
 library("fs")
 library("wbstats")
 
 # Loading files from different directory
-source("utils.R")
+source("utils.R" , local = TRUE)
 
-# Reading and refreshing data from GitHub
-# This function download the data only once
 DownloadTheCovidData <- function(){
         download.file(                                                                    # Go to https://github.com/CSSEGISandData/COVID-19/
                 url = "https://github.com/CSSEGISandData/COVID-19/archive/master.zip"     # Click on the green "Code" button
@@ -128,8 +124,31 @@ UpToDate <- function(inputDate){
         data_evolution[which(data_evolution$date == inputDate) , ] %>%
                 distinct() %>%
                 pivot_wider(id_cols = c("Province.State","Country.Region","date","Lat","Long","population") , names_from = var , values_from = value) %>%
-                filter(confirmed > 0 | recovered > 0 | deceased > 0 | active > 0)
+                filter(confirmed > 0 | recovered > 0 | deceased > 0 | active > 0) %>%
+                select( - Lat , -Long , -population , -date)
 }
 
 data_latest <- UpToDate(max(data_evolution$date))
 
+valueBox <- function(value, subtitle, icon, color) {
+        div(class = "col-lg-3 col-md-6",
+            div(class = "panel panel-primary",
+                div(class = "panel-heading", style = paste0("background-color:", color),
+                    div(class = "row",
+                        div(class = "col-xs-3",
+                            icon(icon, "fa-5x")
+                        ),
+                        div(class = ("col-xs-9 text-right"),
+                            div(style = ("font-size: 30px; font-weight: bold;"),
+                                textOutput(value)
+                            ),
+                            div(subtitle)
+                        )
+                    )
+                ),
+                div(class = "panel-footer",
+                    div(class = "clearfix")
+                )
+            )
+        )
+}
