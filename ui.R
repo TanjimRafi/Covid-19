@@ -1,4 +1,4 @@
-source("main.R" , local = TRUE)
+source("global.R" , local = TRUE)
 
 fluidPage(
         title = "Covid-19 Analysis",
@@ -59,6 +59,13 @@ fluidPage(
                         fluidRow(
                                 column(
                                         width = 12,
+                                        paste0("Key Figures (", strftime(max(data_evolution$date), format = "%d.%m.%Y"), ")"),
+                                        div("Last updated: ", strftime(changed_date, format = "%d.%m.%Y - %R %Z"))
+                                )
+                        ),
+                        fluidRow(
+                                column(
+                                        width = 12,
                                         h3("Summary Datatable"),
                                         dataTableOutput(
                                                 outputId = "summaryDT"
@@ -89,6 +96,8 @@ fluidPage(
                         title = "Plots",
                         icon = icon("chart-bar"),
                         fluidRow(
+                                HTML("Please wait for few seconds while loading!"),
+                                br(),
                                 h2(" Worldwide Evolution of Cases since Outbreak"),
                                 HTML("Advice: Please click on 'Compare data on hover' to get a better understanding!"),
                                 plotlyOutput(
